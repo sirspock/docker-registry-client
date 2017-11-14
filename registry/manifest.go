@@ -148,3 +148,29 @@ func (registry *Registry) PutManifest(repository, reference string, signedManife
 	}
 	return err
 }
+
+func (registry *Registry) ManifestMetadata(repository string, digest digest.Digest) ([]byte, error) {
+	url := registry.url("/v2/%s/blobs/%s", repository, digest.String())
+	registry.Logf("registry.layer.check url=%s repository=%s digest=%s", url, repository, digest)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", manifestV1.MediaTypeManifest)
+	resp, err := registry.Client.Do(req)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
+}

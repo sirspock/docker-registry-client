@@ -1,6 +1,8 @@
 package registry
 
 import (
+	_ "crypto/sha256"
+	_ "crypto/sha512"
 	"io"
 	"net/http"
 	"net/url"
